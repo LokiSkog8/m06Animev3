@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 import com.example.demo.domain.dto.ErrorMessage;
-import com.example.demo.domain.dto.FileResult;
+import com.example.demo.domain.model.projection.FileResult;
 import com.example.demo.domain.model.File;
 import com.example.demo.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
