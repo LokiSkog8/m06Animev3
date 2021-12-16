@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.domain.dto.ErrorMessage;
-import com.example.demo.domain.dto.ListResult;
+import com.example.demo.domain.dto.ResponseList;
 import com.example.demo.domain.model.Anime;
 import com.example.demo.repository.AnimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,8 @@ public class AnimeController {
     private AnimeRepository animeRepository;
 
     @GetMapping("/")
-    public ResponseEntity<ListResult> findAllAnimes(){
-
-        //return animeRepository.findAll();
-        return ResponseEntity.ok().body(ListResult.list(animeRepository.findAll()));
+    public ResponseEntity<?> findAllAnimes(){
+        return ResponseEntity.ok().body(new ResponseList(animeRepository.findBy()));
     }
 
     @PostMapping("/")
@@ -40,10 +38,7 @@ public class AnimeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorMessage.message("File not found"));
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf(anime.name))
-                .contentType(MediaType.valueOf(anime.description))
-                .contentType(MediaType.valueOf(anime.imageurl));
+        return ResponseEntity.ok().body(anime);
     }
 
     @DeleteMapping("/{id}")
@@ -55,5 +50,4 @@ public class AnimeController {
         return ResponseEntity.ok().contentType(MediaType.valueOf(String.valueOf(anime.animeid)))
                 .body(ErrorMessage.message("File Deleted"));
     }
-
 }

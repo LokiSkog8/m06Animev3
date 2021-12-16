@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 import com.example.demo.domain.dto.ErrorMessage;
+import com.example.demo.domain.model.Favorite;
+import com.example.demo.domain.dto.ResponseList;
 import com.example.demo.domain.dto.UserRegisterRequest;
-import com.example.demo.domain.model.Anime;
-import com.example.demo.domain.model.File;
 import com.example.demo.domain.model.User;
+import com.example.demo.repository.FavoriteRepository;
 import com.example.demo.repository.UserRepository;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,11 @@ import static jdk.internal.net.http.common.Utils.encode;
 public class UserController {
 
     @Autowired private UserRepository userRepository;
+    @Autowired private FavoriteRepository favoriteRepository;
+    @GetMapping("/")
+    public ResponseEntity<?> getAll(){
+        return ResponseEntity.ok().body(new ResponseList(userRepository.findBy()));
+    }
 
     @PostMapping(path = "/register" )
     public ResponseEntity<?> register(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -63,4 +71,16 @@ public class UserController {
                 "<input id='password' type='password' placeholder='Password'>" +
                 "<input type='button' value='Register' onclick='fetch(\"/users/register/\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:`{\"username\":\"${username.value}\",\"password\":\"${password.value}\"}`})'></div>";
     }
+
+    @PostMapping("/{id}/favorites")
+    public ResponseEntity<?> addFavorite(@RequestBody Favorite favorite, Authentication authentication){
+
+        if(userRepository.findByUsername(authentication.name()).userid.equals(favorite.userid)){
+            favoriteRepository.save(favorite);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Pitos"));
+        
+    }
+
 }
