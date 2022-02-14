@@ -46,7 +46,7 @@ public class AnimeController {
 
         return ResponseEntity.ok().body(animeRepository.findByAnimeid(id, ProjectionAnime.class));
     }
-
+//gok
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAnime(@PathVariable UUID id){
         Anime anime = animeRepository.findById(id).orElse(null);
