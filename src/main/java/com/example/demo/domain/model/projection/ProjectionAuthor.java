@@ -6,8 +6,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface ProjectionAuthor {
-    UUID getAuthor();
-    String getTitle();
+    UUID getAuthorid();
+    String getName();
+
     @JsonIgnoreProperties("authors")
     Set<ProjectionAnime> getAnimes();
 }

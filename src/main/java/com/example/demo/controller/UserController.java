@@ -1,19 +1,21 @@
 package com.example.demo.controller;
+
 import com.example.demo.domain.dto.ErrorMessage;
 import com.example.demo.domain.dto.RequestedFavorite;
-import com.example.demo.domain.model.Favorite;
 import com.example.demo.domain.dto.ResponseList;
 import com.example.demo.domain.dto.UserRegisterRequest;
+import com.example.demo.domain.model.Favorite;
 import com.example.demo.domain.model.User;
+import com.example.demo.domain.model.projection.ProjectionAnime;
 import com.example.demo.domain.model.projection.ProjectionFavorite;
+import com.example.demo.domain.model.projection.ProjectionUser;
 import com.example.demo.repository.FavoriteRepository;
 import com.example.demo.repository.UserRepository;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,9 +47,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorMessage.message("Nom d'usuari no disponible"));
     }
 
-    @GetMapping
-    public List<User> getALl(){
-        return userRepository.findAll();
+    @GetMapping("/{id}")
+    public ResponseEntity<?>findUserById(@PathVariable UUID id){
+        return ResponseEntity.ok().body(userRepository.findByUserid(id, ProjectionUser.class));
     }
 
     @DeleteMapping("/{id}")
@@ -61,58 +63,47 @@ public class UserController {
     }
 
 
-    @DeleteMapping
-    public void deleteUsers(){
-            }
 
-    // WEB REGISTER FORM (for testing)
-    @GetMapping("/register/web")
-    public String hack(){
-        return "<div style='display:flex;flex-direction:column;width:20em;gap:0.5em'>" +
-                "<input name='username' id='username' placeholder='Username'>" +
-                "<input id='password' type='password' placeholder='Password'>" +
-                "<input type='button' value='Register' onclick='fetch(\"/users/register/\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:`{\"username\":\"${username.value}\",\"password\":\"${password.value}\"}`})'></div>";
-    }
-
-    @PostMapping("/{id}/favorites")
-    public ResponseEntity<?> addFavorite(@RequestBody RequestedFavorite favorite, Authentication authentication){
+    @PostMapping("/favorites")
+    public ResponseEntity<?> addFavorite(@RequestBody RequestedFavorite requestedFavorite, Authentication authentication){
 
         if(authentication != null){
-            User userAutenticated = userRepository.findByUsername(authentication.name());
+            User userAutenticated = userRepository.findByUsername(authentication.getName());
             if(userAutenticated != null){
-                Favorite favorite1 = new Favorite();
-                favorite1.userid = userAutenticated.userid;
-                favorite1.animeid = favorite.animeid;
-                favoriteRepository.save(favorite1);
+                Favorite favorite = new Favorite();
+                favorite.userid = userAutenticated.userid;
+                favorite.animeid = requestedFavorite.animeid;
+                favoriteRepository.save(favorite);
                 return ResponseEntity.ok().build();
-
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Pitos"));
         
     }
 
-    @DeleteMapping("/{id}/favorites")
+    @DeleteMapping("/favorites")
     public ResponseEntity<?> delFavorites(@RequestBody RequestedFavorite requestedFavorite, Authentication authentication){
         if(authentication != null){
-            User authenticatedUser = userRepository.findByUsername(authentication.name());
+            User authenticatedUser = userRepository.findByUsername(authentication.getName());
             if(authenticatedUser != null){
                 Favorite favorite = new Favorite();
                 favorite.userid= authenticatedUser.userid;
                 favorite.animeid = requestedFavorite.animeid;
                 favoriteRepository.delete(favorite);
+                System.out.println("DONE");
                 return ResponseEntity.ok().build();
+
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Que no"));
     }
 
-    @GetMapping("/{id}/favorites")
+    @GetMapping("/favorites")
     public ResponseEntity<?> getFavorites(Authentication authentication){
         if(authentication != null){
-            User authenticadedUser = userRepository.findByUsername(authentication.name());
+            User authenticadedUser = userRepository.findByUsername(authentication.getName());
             if(authenticadedUser != null){
-                return ResponseEntity.ok().body(userRepository.findByUsername(authentication.name(), ProjectionFavorite.class));
+                return ResponseEntity.ok().body(userRepository.findByUsername(authentication.getName(), ProjectionFavorite.class));
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("pesao"));

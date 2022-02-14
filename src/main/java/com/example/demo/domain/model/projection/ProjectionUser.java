@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface ProjectionUser {
     UUID getUserid();
     String getUsername();
+
     @JsonIgnoreProperties("favoritedby")
     Set<ProjectionAnime> getFavorites();
 }

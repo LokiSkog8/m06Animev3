@@ -8,5 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GenreRepository extends JpaRepository<Genre, UUID> {
-    List<ProjectionGenre> findBy();
+    <T> List<T> findBy();
+
 }

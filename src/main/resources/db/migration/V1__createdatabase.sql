@@ -30,3 +30,34 @@ animeid uuid REFERENCES anime(animeid) ON DELETE CASCADE,
 genreid uuid REFERENCES genre(genreid) ON DELETE CASCADE,
 PRIMARY KEY(animeid, genreid)
 );
+
+CREATE TABLE usser(
+userid uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+username text not null,
+password text not null,
+role text,
+enabled boolean DEFAULT true
+);
+
+CREATE TABLE valoration(
+userid uuid REFERENCES usser(userid) ON DELETE CASCADE,
+animeid uuid REFERENCES anime(animeid) ON DELETE CASCADE,
+valoration numeric,
+PRIMARY KEY(userid,animeid)
+);
+
+
+CREATE TABLE favorite(
+userid uuid REFERENCES usser(userid) ON DELETE CASCADE,
+animeid uuid REFERENCES anime(animeid) ON DELETE CASCADE,
+PRIMARY KEY(userid, animeid)
+);
+
+CREATE TABLE custom(
+userid uuid REFERENCES usser(userid) ON DELETE CASCADE,
+animeid uuid REFERENCES anime(animeid) ON DELETE CASCADE,
+listname text,
+PRIMARY KEY(userid, animeid)
+);
+
+
